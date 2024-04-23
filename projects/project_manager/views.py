@@ -2,7 +2,7 @@
 import datetime
 import json
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.views import View
 
@@ -29,10 +29,12 @@ class ProjectIndex(View):
     context['colaboradores'] = Colaborador.objects.all()
 
     project_id = request.GET.get('project_id') if request.GET.get('project_id') is not None else kwargs['project_id']
-    if project_id:
+    if project_id and (request.GET.get('acao') == 'criar' or not request.GET.get('acao')):
       projetos = [projeto.as_dict() for projeto in Projeto.objects.filter(id=project_id)]
 
       context['projeto'] = json.loads(json.dumps(projetos))
+    elif project_id and request.GET.get('acao') == 'deletar':
+      return self.delete(request, *args, **kwargs)
 
     return TemplateResponse(request, self.template, context)
   
@@ -71,3 +73,16 @@ class ProjectIndex(View):
     context['projeto'] = json.loads(json.dumps(projeto.as_dict()))
 
     return TemplateResponse(request, self.template, context)
+  
+  def delete(self, request, *args, **kwargs):
+    context = {}
+    project_id = project_id = request.GET.get('project_id') if request.GET.get('project_id') is not None else kwargs['project_id']
+    try:
+      projeto = Projeto.objects.get(id=project_id)
+    except Exception as e:
+      context['error'] = 'Projeto não encontrado!'
+      return TemplateResponse(request, self.template, context)
+    
+    context['projeto'] = projeto.delete()
+
+    return redirect('/projects')
