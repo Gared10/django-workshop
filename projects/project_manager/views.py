@@ -1,10 +1,11 @@
 
 import datetime
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
 from django.views import View
+import pandas as pd
 
 from .models import Colaborador, Projeto
 
@@ -18,6 +19,48 @@ class ProjectsIndex(View):
     context['projetos'] = json.loads(json.dumps(projetos))
 
     return TemplateResponse(request, 'base.html', context)
+  
+  def post(self,request, *args, **kwargs):
+    context = {}
+    projeto = {}
+    if len(request.FILES) <= 0:
+      return TemplateResponse(request, self.template, {'info': 'É necessário escolher um arquivo para prosseguir'})
+    
+    csvFile = pd.read_csv(request.FILES['csv_file'], sep=';', )
+    columns = ['matricula', 'nome', 'descricao', 'valor', 'tipo', 'status', 'data_inicial', 'data_final', 'gestor']
+
+    for index, row in csvFile.iterrows():
+      projeto['id'] = None
+      projeto['nome'] = row['nome'][:255]
+      projeto['descricao'] = str(row['descricao'][:255]) if str(row['descricao']) != 'nan' else ''
+      projeto['valor'] = float(row['valor'])
+      projeto['tipo'] = row['tipo'].upper() 
+      projeto['status'] = row['status'].upper() 
+      projeto['data_inicial'] = datetime.datetime.strptime(str(row['data_inicial']), "%Y-%m-%d")
+      projeto['data_final'] = datetime.datetime.strptime(str(row['data_final']), "%Y-%m-%d")
+      projeto['gestor'] = Colaborador.objects.get(id=row['gestor'])
+      projeto['matricula'] = Colaborador.objects.filter(matricula="{:06d}".format(row['matricula']))
+
+      try:
+        project = Projeto()
+        project.nome = projeto['nome']
+        project.descricao = projeto['descricao']
+        project.data_inicial = projeto['data_inicial']
+        project.data_final = projeto['data_final']
+        project.valor = projeto['valor']
+        project.gestor = projeto['gestor']
+        project.tipo = projeto['tipo']
+        project.status = projeto['status']
+        project.save()
+        project.colaboradores = projeto['matricula']
+        project.save()
+      except Exception as e:
+        context['error'] = 'Erro ao importar projetos'
+        context['erroDetail'] = str(e)
+        context['code'] = '400'
+        raise HttpResponseNotFound(context['error'], context)
+    
+    return redirect('/projects')
   
 class ProjectIndex(View):
   template = 'project.html'
