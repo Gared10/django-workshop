@@ -1,0 +1,102 @@
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projetos</title>
+</head>
+<body>
+  <div>
+    <h1>Novo Projeto</h1>
+  </div>
+  <div name="create-project-form-div">
+    <form method="post" name="create-project-form" id="create-project-form">
+      {% csrf_token %}
+      <div name="id-field">
+        <label name="id-label" style="display: none;">Id: </label>
+        <input type="hidden" name="id" id="id" value="{% if projeto is not None %}{{projeto.0.id}}{% endif %}">
+      </div>
+      <div name="name-field">
+        <label name="nome-label">Nome: </label>
+        <input type="text" name="nome" id="nome" value="{% if projeto is not None %}{{projeto.0.nome}}{% endif %}" required>
+      </div>
+      <div name="description-field">
+        <label name="descricao-label">Descricao: </label>
+        <input type="text" name="descricao" id="descricao" value="{% if projeto is not None %}{{projeto.0.descricao}}{% endif %}" required>
+      </div>
+      <div name="status-field">
+        <label name="status-label">Status: </label>
+        <select data-live-search="true" name="status" id="status" required>
+          <option value="" disabled {% if projeto is not None %}selected{% endif %}>Indique o status do projeto</option>
+          <option value='E' {% if projeto is not None and projeto.0.status == 'E' %}selected{% endif %}>Em andamento</option>
+          <option value='P' {% if projeto is not None and projeto.0.status == 'P' %}selected{% endif %}>Pendente</option>
+          <option value='A' {% if projeto is not None and projeto.0.status == 'A' %}selected{% endif %}>Adiado</option>
+          <option value='C' {% if projeto is not None and projeto.0.status == 'C' %}selected{% endif %}>Concluido</option>
+          <option value='F' {% if projeto is not None and projeto.0.status == 'F' %}selected{% endif %}>Finalizado</option>
+        </select>
+      </div>
+      <div name="initial-date-field">
+        <label name="data-inicial">Data Inicial: </label>
+        <input type="date" name="data_inicial" id="data_inicial" value="{% if projeto is not None %}{{projeto.0.data_inicial}}{% endif %}" required>
+      </div>
+      <div name="final-date-field">
+        <label name="data-final">Data Final: </label>
+        <input type="date" name="data_final" id="data_final" value="{% if projeto is not None %}{{projeto.0.data_final}}{% endif %}" required>
+      </div>
+      <div name="value-field">
+        <label name="valor">Valor: </label>
+        <input type="number" name="valor" id="valor" value="{% if projeto is not None %}{{projeto.0.valor}}{% endif %}" required>
+      </div>
+      <div name="type-field">
+        <label name="tipo">Tipo: </label>
+        <select data-live-search="true" name="tipo" id="tipo" required>
+          <option value="" disabled {% if projeto is not None %}selected{% endif %}>Indique o tipo do projeto</option>
+          <option value='N' {% if projeto is not None and projeto.0.tipo == 'N' %}selected{% endif %}>Normal</option>
+          <option value='E' {% if projeto is not None and projeto.0.tipo == 'E' %}selected{% endif %}>Extra</option>
+        </select>
+      </div>
+      <div name="gestor-field">
+        <label name="gestor-label">Gestor: </label>
+        <select data-live-search="true" name="gestor" id="gestor" required>
+          <option value="" disabled {% if projeto.0 is not None %}selected{% endif %}>Selecione um gestor</option>
+          {% for gestor in gestores %}
+          <option value="{% if projeto.0 %}{{projeto.0.valor}}{% else %}{{gestor.id}}{% endif %}">{{ gestor.matricula }} - {{ gestor.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div name="colaboradores-field">
+        <label name="colaboradores-label">Colaboradores: </label>
+        <select data-live-search="true" name="colaboradores" id="colaboradores" multiple>
+          <option value="" disabled {% if projeto.0 is not None %}selected{% endif %}>Selecione um ou mais colaboradores</option>
+          {% for colaborador in colaboradores %}
+          <option value="{{colaborador.id}}" {% if projeto.0 is not None and colaborador.id in projeto.0.colaboradores %}selected{% endif %}>{{ colaborador.matricula }} - {{ colaborador.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" name="acao" value="criar" class="btn btn-primary">Confirmar</button>
+    </form>
+  </div>
+</body>
+</html>
+{% endblock %}
+
+<!-- {% block scripts %}
+<script>
+  let nome = document.getElementById("nome");
+  let descricao = document.getElementById("descricao");
+  let data_inicial = document.getElementById("data_inicial");
+  let data_final = document.getElementById("data_final");
+  let status = document.getElementById("status");
+  let tipo = document.getElementById("tipo");
+  let gestor = document.getElementById("gestor");
+  let valor = document.getElementById("valor");
+  let colaboradores = document.getElementById("colaboradores");
+  let form = document.getElementById('create-project-form')
+  if (nome.value.trim() != nome.defaultValue.trim() || descricao.value.trim() !== descricao.defaultValue.trim()
+      || data_inicial.value !== data_inicial.defaultValue || data_final.value !== data_final.defaultValue 
+      || status.value.trim() !== status.defaultValue.trim() || tipo.value.trim() !== tipo.defaultValue.trim()
+      || gestor.value !== gestor.defaultValue || Number(valor.value) !== Number(valor.defaultValue) 
+      || colaboradores.value !== colaboradores.defaultValue) form.setAttribute('method', 'put');
+  </script>
+{% endblock %} -->

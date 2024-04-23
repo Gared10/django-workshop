@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projetos</title>
+</head>
+<body>
+
+  {% for projeto in projetos %}
+  <ol>
+    <li>{{projeto.id}}</li>
+    <li>{{projeto.nome}}</li>
+    <li>{{projeto.descricao}}</li>
+    <li>{{projeto.data_inicial}}</li>
+    <li>{{projeto.data_final}}</li>
+    <li>{{projeto.status}}</li>
+    <li>{{projeto.valor}}</li>
+    <li>{{projeto.tipo}}</li>
+    <li>{{projeto.gestor}}</li>
+    <li>{{projeto.colaboradores}}</li>
+  </ol>
+  {% endfor %}
+  
+</body>
+</html>
