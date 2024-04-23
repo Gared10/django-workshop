@@ -6,7 +6,13 @@
   <title>Projetos</title>
 </head>
 <body>
-
+  <div class="input_container">
+    <form action="{% url 'all_projects' %}" method="post" enctype="multipart/form-data">
+        <input type="file" id="fileUpload" name="csv_file" accept=".csv">               
+        {% csrf_token %}
+        <button class="btn btn-info" type="submit">Importar CSV</button>
+    </form>            
+  </div>
   {% for projeto in projetos %}
   <ol>
     <li>{{projeto.id}}</li>
