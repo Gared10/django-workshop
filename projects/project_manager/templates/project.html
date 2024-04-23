@@ -23,7 +23,7 @@
       </div>
       <div name="description-field">
         <label name="descricao-label">Descricao: </label>
-        <input type="text" name="descricao" id="descricao" value="{% if projeto is not None %}{{projeto.0.descricao}}{% endif %}" required>
+        <input type="text" name="descricao" id="descricao" value="{% if projeto is not None %}{{projeto.0.descricao}}{% endif %}">
       </div>
       <div name="status-field">
         <label name="status-label">Status: </label>
@@ -59,29 +59,30 @@
       <div name="gestor-field">
         <label name="gestor-label">Gestor: </label>
         <select data-live-search="true" name="gestor" id="gestor" required>
-          <option value="" disabled {% if projeto.0 is not None %}selected{% endif %}>Selecione um gestor</option>
+          <option value="" disabled {% if projeto.0 is None or projeto.0 is not None and not projeto.0.gestor %}selected{% endif %}>Selecione um gestor</option>
           {% for gestor in gestores %}
-          <option value="{% if projeto.0 %}{{projeto.0.valor}}{% else %}{{gestor.id}}{% endif %}">{{ gestor.matricula }} - {{ gestor.nome }}</option>
+            <option value="{{gestor.id}}" {% if projeto.0 is not None and projeto.0.gestor == gestor.id %}selected{% endif %}>{{ gestor.matricula }} - {{ gestor.nome }}</option>
           {% endfor %}
         </select>
       </div>
       <div name="colaboradores-field">
         <label name="colaboradores-label">Colaboradores: </label>
         <select data-live-search="true" name="colaboradores" id="colaboradores" multiple>
-          <option value="" disabled {% if projeto.0 is not None %}selected{% endif %}>Selecione um ou mais colaboradores</option>
+          <option value="" disabled {% if projeto.0 is None or projeto.0 is not None and projeto.0.colaboradores|length == 0 %}selected{% endif %}>Selecione um ou mais colaboradores</option>
           {% for colaborador in colaboradores %}
           <option value="{{colaborador.id}}" {% if projeto.0 is not None and colaborador.id in projeto.0.colaboradores %}selected{% endif %}>{{ colaborador.matricula }} - {{ colaborador.nome }}</option>
           {% endfor %}
         </select>
       </div>
-      <button type="submit" name="acao" value="criar" class="btn btn-primary">Confirmar</button>
+      <button type="submit" name="acao" value="criar" class="btn btn-primary" id="submit-button">Confirmar</button>
+      <button type="button" name="acao" value="deletar" class="btn btn-primary" onclick="deleteProject()">Excluir projeto</button>
     </form>
   </div>
 </body>
 </html>
 {% endblock %}
 
-<!-- {% block scripts %}
+{% block scripts %}
 <script>
   let nome = document.getElementById("nome");
   let descricao = document.getElementById("descricao");
@@ -98,5 +99,12 @@
       || status.value.trim() !== status.defaultValue.trim() || tipo.value.trim() !== tipo.defaultValue.trim()
       || gestor.value !== gestor.defaultValue || Number(valor.value) !== Number(valor.defaultValue) 
       || colaboradores.value !== colaboradores.defaultValue) form.setAttribute('method', 'put');
+
+  function deleteProject() {
+    let form = document.getElementById('create-project-form');
+    let submitButton = document.getElementById('submit-button')
+    form.setAttribute('method', 'delete');
+    submitButton.setAttribute('value', 'deletar');
+  }
   </script>
-{% endblock %} -->
+{% endblock %}
